@@ -1,12 +1,27 @@
-.chat-box{
+.chat-box, .login-form{
     border: 1px solid #cfbfbf;
     border-radius: 6px;
+}
+#chat-box{
+    display: none;
+}
+.login-form{
+    max-width: 500px;
+    margin: auto !important;
+}
+.title{
+    padding-top: 10px;
+    text-transform: uppercase;
+}
+#btnConnect{
+    width: 100%;
 }
 .name{
     margin-bottom: 0;
 }
 .chat-item{
     transition: .3s;
+    cursor: pointer;
 }
 
 .left-body .chat-item:hover, .chat-item.active{
@@ -91,4 +106,8 @@
     width: 100%;
     bottom: 15px;
     padding-right: 24px;
+}
+
+#newChat{
+    width: 100%;
 }

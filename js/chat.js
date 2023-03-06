@@ -4,10 +4,11 @@ var userIds = [];
 var myUserId = '';
 var accessToken = '';
 var convId = '';
+var isLogin = false;
+var userInfo = {};
 
 $(document).ready(function () {
     console.log("document ready");
-    $a = new ChatDemo();
 
     if (localStorage.getItem("accessToken")) {
         accessToken = localStorage.getItem("accessToken");
@@ -33,7 +34,7 @@ $(document).ready(function () {
     $('#btnStart').click(()=>{
         const strUserIds = $('#userIds').val().trim();
         if (strUserIds.length == 0) {
-            toast("User Id không được để trống!");
+            toast("User Id không được để trống!", 'Lỗi');
         } else {
             userIds = strUserIds.split(',');
             userIds = userIds.map(e => {
@@ -49,6 +50,15 @@ $(document).ready(function () {
         const content = $('#messageContent').val();
         sendMessage("test content");
     })
+
+    $(document).on('click', '.chat-item', function(event) {
+        const convId = $(this).attr('convId');
+        $('.chat-item').removeClass('active');
+        $(this).addClass('active');
+        if (convId) {
+            getLastMessages(convId);
+        }
+    });
 })
 
 function toast(message, title = 'Thông báo'){
@@ -116,8 +126,11 @@ function settingClientEvents(client) {
 
             $('#userId').html(myUserId);
             $('#userId').show();
+            $('#login-form').hide('fast');
+            $('#chat-box').show('fast');
             stringeeChat = new StringeeChat(stringeeClient);
             settingClientChat();
+            getConversation();
         } else {
             toast(res.message, "Lỗi")
         }
@@ -134,4 +147,91 @@ function settingClientEvents(client) {
         //please get new access_token from YourServer and call: 
         //client.connect(new_access_token);
     });
+}
+
+function getConversation(){
+    stringeeChat.getLastConversations(10, false, function (status, code, message, convs) {
+        console.log(status + code + message + ' convs:', convs);
+        updateViewChatList(convs);
+    });
+}
+
+function getLastMessages(convId){
+    stringeeChat.getLastMessages(convId, 50, false, function (status, code, message, msgs) {
+        console.log('status:' + status + ' code:' + code + ' message:' + message + ' conv:', msgs);
+        updateViewChatContent(msgs);
+    });
+}
+
+function updateViewChatList(convs){
+    let html = '';
+    convs.forEach((element, index) => {
+        let chatItemTemp = chatItem;
+        let convsName = '';
+
+        const lastMessage = element.lastMessage && element.lastMessage.content && element.lastMessage.content.content ? element.lastMessage.content.content : '...';
+        if (element.id == convId) {
+            chatItemTemp = chatItemTemp.replaceAll('{{active}}', 'active');
+        } else {
+            chatItemTemp = chatItemTemp.replaceAll('{{active}}', '');
+        }
+
+        let arr = element.participants.filter(e => e.userId != myUserId);
+        arr = arr.map(e => e.userId);
+        convsName = arr.join(', ');
+
+        chatItemTemp = chatItemTemp.replaceAll('{{name}}', convsName);
+        chatItemTemp = chatItemTemp.replaceAll('{{convId}}', element.id);
+        chatItemTemp = chatItemTemp.replaceAll('{{lastMessage}}', lastMessage);
+        chatItemTemp = chatItemTemp.replaceAll('{{avatarUrl}}', './img/' + index + '.jfif');
+
+        userInfo[arr[0]] = './img/' + index + '.jfif';
+
+        html += chatItemTemp;
+    });
+    $('#chatList').html(html);
+}
+
+function updateViewChatContent(messages){
+    let html = '';
+    let sender = '';
+    let htmlItem = '';
+
+    messages.forEach((element, index) => {
+        let htmlMessageItem = messageItem;
+        if (!sender) {
+            sender = element.sender;
+        } else if (sender != element.sender) {
+            if (sender != myUserId) {
+                console.log("OK userInfo 1",userInfo[sender]);
+                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', userInfo[sender]);
+                htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem);
+                html += htmlOrtherMessage;
+                htmlItem = '';
+            } else {
+                let htmlMyMessage = myMessage.replaceAll('{{messageItem}}', htmlItem);
+                html += htmlMyMessage;
+                htmlItem = '';
+            }
+            sender = element.sender;
+        }
+        const content = element.content ? element.content.content : '';
+        if (content) {
+            htmlItem += htmlMessageItem.replaceAll('{{contentMessage}}', content + element.sender);
+        }
+
+        if (index >= messages.length - 1) {
+            if (sender != myUserId) {
+                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', userInfo[sender]);
+                htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem);
+                html += htmlOrtherMessage;
+            } else {
+                let htmlMyMessage = myMessage.replaceAll('{{messageItem}}', htmlItem);
+                html += htmlMyMessage;
+                htmlItem = '';
+            }
+        }
+    });
+
+    $('#chatContent').html(html);
 }
