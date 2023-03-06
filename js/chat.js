@@ -205,11 +205,11 @@ function updateViewChatContent(messages){
             if (sender != myUserId) {
                 console.log("OK userInfo 1",userInfo[sender]);
                 let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', userInfo[sender]);
-                htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem);
+                htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlOrtherMessage;
                 htmlItem = '';
             } else {
-                let htmlMyMessage = myMessage.replaceAll('{{messageItem}}', htmlItem);
+                let htmlMyMessage = myMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlMyMessage;
                 htmlItem = '';
             }
@@ -223,10 +223,10 @@ function updateViewChatContent(messages){
         if (index >= messages.length - 1) {
             if (sender != myUserId) {
                 let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', userInfo[sender]);
-                htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem);
+                htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlOrtherMessage;
             } else {
-                let htmlMyMessage = myMessage.replaceAll('{{messageItem}}', htmlItem);
+                let htmlMyMessage = myMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlMyMessage;
                 htmlItem = '';
             }
