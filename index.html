@@ -29,6 +29,9 @@
                 <div class="mb-3">
                     <label for="exampleFormControlTextarea1" class="form-label">Access Token</label>
                     <textarea class="form-control" id="accessToken" rows="3"></textarea>
+                    <p class="text-end my-2" style="font-size: 14px;">
+                        Lấy token tại <a href="https://asia-1.console.stringee.com/tool">https://asia-1.console.stringee.com/tool</a>
+                    </p>
                     <button class="btn btn-primary mt-3 btn-sm" id="btnConnect">Connect</button>
                 </div>
             </div>
@@ -50,9 +53,9 @@
                 </div>
                 <div class="col-8 py-3 content-message">
                     <div class="right-header position-relative px-2">
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center" style="min-height: 66px;">
                             <div class="avatar my-2">
-                                <img src="./img/1.jfif">
+                                <img style="display: none;" id="convAvatar" src="./img/1.jfif">
                             </div>
                             <div class="info">
                                 <p class="name fw-bolder" id="convName"></p>

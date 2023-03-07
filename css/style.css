@@ -86,6 +86,7 @@
 
 .message.my-message{
     text-align: right;
+    padding-right: 10px;
 }
 
 .my-message .item-message{

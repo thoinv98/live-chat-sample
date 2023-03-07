@@ -8,6 +8,8 @@ var userInfo = {};
 var convList = [];
 var currentConv = {};
 var currentMessages = [];
+var myUserInfo = {};
+var userList = [];
 
 $(document).ready(function () {
     console.log("document ready");
@@ -104,7 +106,6 @@ function sendMessage(message) {
         type: type,
     };
     stringeeChat.sendMessage(body, function(res){
-        console.log("OKOKOKOKOK", res);
         if (res) {
             resetChat();
         }
@@ -194,6 +195,18 @@ function settingClientEvents(client) {
             stringeeChat = new StringeeChat(stringeeClient);
             settingClientChat();
             getConversation();
+            
+            getUsersInfo([myUserId]).then(res => {
+                if (res && res[0] && res[0].avatar) {
+                    myUserInfo = res[0];
+                } else {
+                    updateUserInfo().then(res => {
+                        getUsersInfo([myUserId]).then(res => {
+                            myUserInfo = res[0];
+                        });
+                    });
+                }
+            });
         } else {
             toast(res.message, "Lỗi")
         }
@@ -215,6 +228,16 @@ function settingClientEvents(client) {
 function getConversation(){
     stringeeChat.getLastConversations(10, false, function (status, code, message, convs) {
         console.log(status + code + message + ' convs:', convs);
+        convs.forEach(element => {
+            let arr = element.participants.filter(e => e.userId != myUserId && !userList.find(e1 => e1.userId == e.userId));
+            if (arr) {
+                arr.forEach(e => {
+                    userList.push({...e});
+                });
+            }
+        });
+
+        console.log("userList", userList);
         updateViewChatList(convs);
         convList = convs;
     });
@@ -244,7 +267,55 @@ function showChat(convId){
     console.log("currentConv: ", currentConv);
     currentConv.hasNewMsg = false;
     if (currentConv) {
-        $('#convName').html(getConvName(currentConv))
+        $('#convName').html(getConvName(currentConv));
+        const avatarUrl = getAvatarConv(currentConv);
+        $('#convAvatar').attr('src', avatarUrl);
+        $('#convAvatar').show();
+    }
+}
+
+function updateUserInfo(){
+
+    var data = {
+        avatar_url: './img/' + getRandomInt() + '.jfif',
+        display_name: myUserId,
+        useragent: window.navigator.userAgent,
+    };
+
+    return new Promise(function(resolve, reject) {
+        stringeeChat.updateUserInfo(data, function (res) {
+            console.log(res);
+            resolve(res);
+        })
+    })
+}
+
+function getUsersInfo(userIds){
+    return new Promise(function(resolve, reject) {
+        stringeeChat.getUsersInfo(userIds, function (status, code, message, users) {
+            console.log('users info:', users);
+            resolve(users);
+        });
+    });
+}
+
+function getRandomInt(min = 0, max = 10) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getAvatarConv(convs){
+    let arr = convs.participants.filter(e => e.userId != myUserId);
+    arr = arr.map(e => e.userId);
+    convsName = arr.join(', ');
+
+    const ortherUser = convs.participants.find(e => e.userId != myUserId);
+
+    if (arr.length > 1) {
+        return './img/group.jpg'
+    } else {
+        return ortherUser.avatar ? ortherUser.avatar : './img/0.jfif';
     }
 }
 
@@ -266,10 +337,17 @@ function updateViewChatList(convs){
         arr = arr.map(e => e.userId);
         convsName = arr.join(', ');
 
+        const ortherUser = element.participants.find(e => e.userId != myUserId);
+
         chatItemTemp = chatItemTemp.replaceAll('{{name}}', convsName);
         chatItemTemp = chatItemTemp.replaceAll('{{convId}}', element.id);
         chatItemTemp = chatItemTemp.replaceAll('{{lastMessage}}', lastMessage);
-        chatItemTemp = chatItemTemp.replaceAll('{{avatarUrl}}', './img/' + index + '.jfif');
+        
+        if (arr.length > 1) {
+            chatItemTemp = chatItemTemp.replaceAll('{{avatarUrl}}', './img/group.jpg');   
+        } else {
+            chatItemTemp = chatItemTemp.replaceAll('{{avatarUrl}}', ortherUser.avatar ? ortherUser.avatar : './img/' + index + '.jfif');
+        }
 
         if (element.hasNewMsg) {
             chatItemTemp = chatItemTemp.replaceAll('{{badgeNewMsg}}', badgeNewMsg);
@@ -297,8 +375,10 @@ function updateViewChatContent(messages){
             sender = element.sender;
         } else if (sender != element.sender) {
             if (sender != myUserId) {
-                console.log("OK userInfo 1",userInfo[sender]);
-                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', userInfo[sender]);
+    
+                let user = userList.find( e => e.userId == sender);
+                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', user.avatar);
+
                 htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlOrtherMessage;
                 htmlItem = '';
@@ -316,7 +396,9 @@ function updateViewChatContent(messages){
 
         if (index >= messages.length - 1) {
             if (sender != myUserId) {
-                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', userInfo[sender]);
+                let user = userList.find( e => e.userId == sender);
+                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', user.avatar);
+
                 htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlOrtherMessage;
             } else {
