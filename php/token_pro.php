@@ -5,8 +5,8 @@ include 'FirebaseJWT/JWT.php';
 use \Firebase\JWT\JWT;
 
 
-$apiKeySid = ''; //YOUR_API_KEY_SID
-$apiKeySecret = ''; //YOUR_API_KEY_SECRET
+$apiKeySid = 'SK.0.cUg2ixyqO96iMv57o0lMHsorgw9ckq0p'; //YOUR_API_KEY_SID
+$apiKeySecret = 'akZFMEV2ek1sc3FVOWFCMkxPUHdsS3d0Y1FJNmJiMA=='; //YOUR_API_KEY_SECRET
 
 $now = time();
 $exp = $now + 100000000;

@@ -90,6 +90,20 @@ $(document).ready(function () {
         stringeeClient.connect(accessToken);
         $("#btnConnect").attr("disabled", true);
     }
+
+    $('#inputSearch').change(()=>{
+        let name = $('#inputSearch').val().toLowerCase();
+
+        if (name.length == 0){
+            updateViewChatList(convList);
+        } else {
+            const result = convList.filter(e => {
+                const convName = getConvName(e).toLowerCase();
+                return convName.includes(name);
+            });
+            updateViewChatList(result);
+        }
+    })
 })
 
 function logOut(){
@@ -218,6 +232,7 @@ function settingClientEvents(client) {
             $('#userId').show();
             $('#login-form').hide('fast');
             $('#chat-box').show('fast');
+            $('#newChat').attr('disabled', false);
             stringeeChat = new StringeeChat(stringeeClient);
             settingClientChat();
             getConversation();
@@ -254,7 +269,7 @@ function settingClientEvents(client) {
 }
 
 function getConversation(){
-    stringeeChat.getLastConversations(10, false, function (status, code, message, convs) {
+    stringeeChat.getLastConversations(50, false, function (status, code, message, convs) {
         console.log(status + code + message + ' convs:', convs);
         convs.forEach(element => {
             let arr = element.participants.filter(e => e.userId != myUserId && !userList.find(e1 => e1.userId == e.userId));
@@ -299,6 +314,9 @@ function showChat(convId){
         const avatarUrl = getAvatarConv(currentConv);
         $('#convAvatar').attr('src', avatarUrl);
         $('#convAvatar').show();
+
+        $('#btnSend').attr('disabled', false);
+        $('#messageContent').attr('disabled', false);
     }
 }
 
