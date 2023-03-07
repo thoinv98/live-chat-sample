@@ -29,6 +29,10 @@
     background: #eaf3ff;
 }
 
+.chat-item.active .badge-new-msg{
+    display: none;
+}
+
 .chat-box .content-message{
     border-left: 1px solid #cfbfbf;
     padding-top: 0px !important;
@@ -110,4 +114,19 @@
 
 #newChat{
     width: 100%;
+}
+
+#chatContent{
+    display: none;
+}
+
+.badge-new-msg{
+    right: 10px;
+}
+
+.last-message{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 190px;
+    overflow: hidden;
 }

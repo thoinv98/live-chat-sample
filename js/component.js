@@ -1,5 +1,5 @@
 var chatItem = `
-<div class="chat-item px-2 my-2 d-flex align-items-center {{active}}" convId="{{convId}}">
+<div class="chat-item px-2 my-2 d-flex align-items-center position-relative {{active}}" convId="{{convId}}">
     <div class="avatar my-2">
         <img src="{{avatarUrl}}">
     </div>
@@ -7,6 +7,7 @@ var chatItem = `
         <p class="name fw-bolder">{{name}}</p>
         <p class="last-message m-0">{{lastMessage}}</p>
     </div>
+    {{badgeNewMsg}}
 </div>
 `;
 
@@ -34,4 +35,8 @@ var messageItem = `
     {{contentMessage}}
 </p>
 <br>
+`;
+
+var badgeNewMsg = `
+<span class="translate-middle p-1 bg-danger border border-light rounded-circle position-absolute badge-new-msg"></span>
 `;
