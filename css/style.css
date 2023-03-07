@@ -2,11 +2,14 @@
     border: 1px solid #cfbfbf;
     border-radius: 6px;
 }
+body .login-form{
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+}
 #chat-box{
     display: none;
 }
 .login-form{
-    max-width: 500px;
     margin: auto !important;
 }
 .title{
@@ -50,8 +53,8 @@
 }
 
 .btn-right{
-    right: 10px;
-    top: 15px;
+    right: 6px;
+    top: -8px;
 }
 
 .avatar img{

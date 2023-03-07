@@ -22,68 +22,62 @@
 </head>
 
 <body>
-    <div class="container my-3">
-        <div class="row login-form" id="login-form">
-            <div class="col">
-                <h5 class="text-center title">Đăng nhập bằng token</h5>
-                <div class="mb-3">
-                    <label for="exampleFormControlTextarea1" class="form-label">Access Token</label>
-                    <textarea class="form-control" id="accessToken" rows="3"></textarea>
-                    <p class="text-end my-2" style="font-size: 14px;">
-                        Lấy token tại <a href="https://asia-1.console.stringee.com/tool">https://asia-1.console.stringee.com/tool</a>
-                    </p>
-                    <button class="btn btn-primary mt-3 btn-sm" id="btnConnect">Connect</button>
-                </div>
+    <div class="container my-3" style="max-width: 900px;">
+        <div class="row login-form mb-3 pb-3">
+            <h5 class="text-center">Nhập User ID bất kỳ</h5>
+            <div class="col-8 d-flex">
+                <span style="width: 100px;">User ID:</span>
+                <input type="text" class="form-control form-control-sm" id="newUserID">
+            </div>
+            <div class="col-4 text-end">
+                <button class="btn btn-primary btn-sm" id="btnConnect">Connect</button>
             </div>
         </div>
-        <div id="chat-box">
-            <div class="row chat-box">
-                <div class="col-4 py-3 position-relative">
-                    <div class="left-header px-2">
-                        <span>Xin chào <strong id="userId"></strong>!</span>
-                        <input type="text" class="form-control form-control-sm mt-1" id="inputSearch" placeholder="Nhập tên để tìm kiếm">
-                    </div>
-                    <div class="left-body" id="chatList">
-                        <!-- {{chat-item}} -->
-                    </div>
-                    <div class="left-footer text-center position-absolute">
-                        <button class="btn btn-primary mt-3 btn-sm" id="newChat" data-bs-toggle="modal" data-bs-target="#exampleModal">Chat mới</button>
-                        Xem đầy đủ tại Stringee.com
+        <div class="row chat-box">
+            <div class="col-4 py-3 position-relative">
+                <div class="left-header px-2 position-relative">
+                    <span>Xin chào <strong id="userId"></strong>!</span>
+                    <input type="text" class="form-control form-control-sm mt-1" id="inputSearch" placeholder="Nhập tên để tìm kiếm">
+                    
+                    <div class="dropdown btn-right position-absolute">
+                        <button type="button" class="btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" id="logoutBtn" href="javascript:;">Đăng xuất</a></li>
+                        </ul>
                     </div>
                 </div>
-                <div class="col-8 py-3 content-message">
-                    <div class="right-header position-relative px-2">
-                        <div class="d-flex align-items-center" style="min-height: 66px;">
-                            <div class="avatar my-2">
-                                <img style="display: none;" id="convAvatar" src="./img/1.jfif">
-                            </div>
-                            <div class="info">
-                                <p class="name fw-bolder" id="convName"></p>
-                            </div>
+                <div class="left-body" id="chatList">
+                    <!-- {{chat-item}} -->
+                </div>
+                <div class="left-footer text-center position-absolute">
+                    <button class="btn btn-primary mt-3 btn-sm" id="newChat" data-bs-toggle="modal" data-bs-target="#exampleModal">Chat mới</button>
+                    Xem đầy đủ tại <a href="https://developer.stringee.com/docs/javascript-sdk/install-javascript-chat-sdk">https://developer.stringee.com/docs</a>
+                </div>
+            </div>
+            <div class="col-8 py-3 content-message">
+                <div class="right-header px-2">
+                    <div class="d-flex align-items-center" style="min-height: 66px;">
+                        <div class="avatar my-2">
+                            <img style="display: none;" id="convAvatar" src="./img/1.jfif">
                         </div>
-                        <div class="dropdown btn-right position-absolute">
-                            <button type="button" class="btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-ellipsis-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Kết thúc</a></li>
-                                <li><a class="dropdown-item" href="#">Xem thông tin</a></li>
-                                <li><a class="dropdown-item" href="#">Báo cáo chát</a></li>
-                            </ul>
+                        <div class="info">
+                            <p class="name fw-bolder" id="convName"></p>
                         </div>
                     </div>
-                    <div class="right-body my-3" id="chatContent">
-                        <!-- {{chatContent}} -->
+                </div>
+                <div class="right-body my-3" id="chatContent">
+                    <!-- {{chatContent}} -->
+                </div>
+                <div class="right-body my-3" id="noChat">
+                    <div class="text-center my-4">
+                        <p>Chọn cuộc trò chuyện để hiển thị ở đây</p>
                     </div>
-                    <div class="right-body my-3" id="noChat">
-                        <div class="text-center my-4">
-                            <p>Chọn cuộc trò chuyện để hiển thị ở đây</p>
-                        </div>
-                    </div>
-                    <div class="right-footer d-flex">
-                        <input type="text" class="form-control form-control-sm mx-3" id="messageContent" placeholder="Aa...">
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="btnSend">Gửi</button>
-                    </div>
+                </div>
+                <div class="right-footer d-flex">
+                    <input type="text" class="form-control form-control-sm mx-3" id="messageContent" placeholder="Aa...">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnSend">Gửi</button>
                 </div>
             </div>
         </div>

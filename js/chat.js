@@ -16,7 +16,6 @@ $(document).ready(function () {
 
     if (localStorage.getItem("accessToken")) {
         accessToken = localStorage.getItem("accessToken");
-        $('#accessToken').val(accessToken);
     }
 
     // Init
@@ -25,14 +24,26 @@ $(document).ready(function () {
     settingClientEvents(stringeeClient);
 
     $('#btnConnect').click(()=>{
-        accessToken = $('#accessToken').val();
-        accessToken =  accessToken.trim();
-        if (accessToken.length == 0) {
-            toast("Access token không được để trống!");
-        } else {
-            stringeeClient.connect(accessToken);
-            console.log("Click connect | token: ", accessToken);
+        let userId = $('#newUserID').val().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        userId = userId.replaceAll(" ", '_');
+        userId = userId.replace(/[^\w\s]/gi, '');
+        if (userId.length == 0) {
+            toast("User Id không được để trống!");
+            return;
         }
+
+        $.get('php/token_pro.php?userId=' + userId).then(res => {
+            res = JSON.parse(res);
+
+            if (res.err && res.code == 1) {
+                toast("$apiKeySid và $apiKeySecret chưa được set trong live-chat-sample/php/token_pro.php", 'Lỗi');
+            } else if (res.access_token) {
+                accessToken = res.access_token;
+                stringeeClient.connect(accessToken);
+
+                $("#btnConnect").attr("disabled", true);
+            }
+        })
     })
 
     $('#btnStart').click(()=>{
@@ -70,7 +81,22 @@ $(document).ready(function () {
             sendMessage(content);
         }
     });
+
+    $('#logoutBtn').click(()=>{
+        logOut()
+    })
+
+    if (accessToken.length > 0) {
+        stringeeClient.connect(accessToken);
+        $("#btnConnect").attr("disabled", true);
+    }
 })
+
+function logOut(){
+    localStorage.removeItem("accessToken");
+    stringeeClient.disconnect();
+    location.reload();
+}
 
 function toast(message, title = 'Thông báo'){
     $('.toast-content').html(message);
@@ -88,10 +114,10 @@ function createConv() {
             isDistinct: false,
             isGroup: true
         };
-        stringeeChat.createConversation(userIds, options, (res) => {
-            // console.log('status:' + status + ' code:' + code + ' message:' + message + ' conv:' + JSON.stringify(conv));
-            console.log("createConversation", res);
-            resolve(res);
+        stringeeChat.createConversation(userIds, options, (status, code, message, conv) => {
+            console.log('createConversation conv:', conv);
+            resolve(conv);
+            $('#userIds').val('');
         })
     })
 }
@@ -208,7 +234,9 @@ function settingClientEvents(client) {
                 }
             });
         } else {
-            toast(res.message, "Lỗi")
+            localStorage.removeItem("accessToken");
+            toast("Token hết hạn! Cần đăng nhập lại", "Thông báo");
+            $("#btnConnect").attr("disabled", false);
         }
     });
 
@@ -315,7 +343,7 @@ function getAvatarConv(convs){
     if (arr.length > 1) {
         return './img/group.jpg'
     } else {
-        return ortherUser.avatar ? ortherUser.avatar : './img/0.jfif';
+        return ortherUser && ortherUser.avatar ? ortherUser.avatar : './img/0.jfif';
     }
 }
 
@@ -346,7 +374,7 @@ function updateViewChatList(convs){
         if (arr.length > 1) {
             chatItemTemp = chatItemTemp.replaceAll('{{avatarUrl}}', './img/group.jpg');   
         } else {
-            chatItemTemp = chatItemTemp.replaceAll('{{avatarUrl}}', ortherUser.avatar ? ortherUser.avatar : './img/' + index + '.jfif');
+            chatItemTemp = chatItemTemp.replaceAll('{{avatarUrl}}', ortherUser && ortherUser.avatar ? ortherUser.avatar : './img/' + index + '.jfif');
         }
 
         if (element.hasNewMsg) {
@@ -377,7 +405,7 @@ function updateViewChatContent(messages){
             if (sender != myUserId) {
     
                 let user = userList.find( e => e.userId == sender);
-                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', user.avatar);
+                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', user && user.avatar ? user.avatar : './img/0.jfif');
 
                 htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlOrtherMessage;
@@ -397,7 +425,7 @@ function updateViewChatContent(messages){
         if (index >= messages.length - 1) {
             if (sender != myUserId) {
                 let user = userList.find( e => e.userId == sender);
-                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', user.avatar);
+                let htmlOrtherMessage = ortherMessage.replaceAll('{{avatarUrl}}', user && user.avatar ? user.avatar : './img/0.jfif');
 
                 htmlOrtherMessage = htmlOrtherMessage.replaceAll('{{messageItem}}', htmlItem.substring(0, htmlItem.length - 5));
                 html += htmlOrtherMessage;
